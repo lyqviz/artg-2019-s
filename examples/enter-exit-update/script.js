@@ -77,43 +77,48 @@ function updatePlot1(data){
 }
 
 function updatePlot2(data){
+
+	console.group('Update plot 2');
 	//YOUR CODE HERE
-	const nodes = plot2.selectAll('.node')
-	 .data(data, d => d.name); //update
-  
-  const nodesEnter = nodes.enter()
-	 .append('g')
-	 .attr('class', 'node')
+	const nodes = plot2.selectAll('.node') //selection of size of 0
+		.data(data, d => d.name); //update selection
 
-  const nodesExit = nodes.exit();
+	const nodesEnter = nodes.enter()
+		.append('g')
+		.attr('class','node');
 
-  nodes.select('circle')
-   .attr('fill', 'green')
+	const nodesCombined = nodes.merge(nodesEnter);
 
-  nodesExit.select('circle')
-    .attr('fill', 'red')
+	const nodesExit = nodes.exit();
+
+	//nodes selection size?
+	nodes.select('circle')
+		.attr('fill', 'green');
+
+	nodesExit.select('circle')
+		.attr('fill', 'red');
 
 	nodesEnter
-	  .append('circle')
-	  .attr('fill', 'yellow');
-
+		.append('circle')
+		.attr('fill','yellow');
 	nodes.merge(nodesEnter)
-	  .select('circle')
-	  .transition()
+		.select('circle')
+		.transition()
 		.attr('r', d => d.value)
 
 	nodesEnter
-	  .append('text')
-    .attr('text-anchor', 'middle');
-
+		.append('text')
+		.attr('text-anchor', 'middle')
 	nodes.merge(nodesEnter)
-	  .select('text')
+		.select('text')
 		.text(d => d.name)
 
 	nodes.merge(nodesEnter)
-	  .transition()
-    .attr('transform', d => `translate(${d.x}, ${d.y})`)
- 
+		.transition()
+		.attr('transform', d => `translate(${d.x}, ${d.y})`);
+
+
+	console.groupEnd();
 
 }
 
