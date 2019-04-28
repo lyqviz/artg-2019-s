@@ -17,20 +17,49 @@ const data = [
 //"seattle, WA has a population of 652405"
 data.forEach(function(d){
 	//YOUR CODE HERE
+  console.log(`${d.city}, ${d.state} has a population of ${d.population}`);
 });
 
 //#2
 //Using array.forEach to sum up the populations of the 4 cities
 //and print out the average population of the 4 cities
+let sum = 0;
+
+data.forEach(function(d){
+  sum += d.population
+})
+
+let avg = sum/data.length;
+
+console.log(sum)
+console.log(avg)
 
 //#3
 //Sort these 4 cities in terms of land area, from highest to lowest
 //And print out the name of the city with the largest land area
 //Hint: use array.sort
+const land_descending = data.sort(function(a, b){
+  return b.land_area - a.land_area
+})
+console.log(land_descending[0].city)
 
 //#4
 //Using array.map, compute the population density of these 4 cities (population divided by area)
 //add population density as a property to each object, and return the array
+const density = data.map(function(d){
+  d.density = d.population/d.land_area
+  return d;
+})
+
 
 //#5
 //Using array.filter, return a subset of the cities with a population <1 million
+
+const filtered = data.filter(function(d){
+  return d.population < 1000000;
+})
+
+
+
+
+

@@ -28,9 +28,29 @@ Promise.all([
 		//Nest/group migration_2000 by origin_country
 		//Then sum up the total value, using either nest.rollup or array.map
 		let migration_origin_by_country = d3.nest() //COMPLETE HERE
+		   .key(d => d.origin_name)
+		   .rollup(xs => d3.sum(xs, d => d.value))
+			.entries(migration_2000);
+		console.log(migration_origin_by_country);
 
 		//YOUR CODE HERE
 		//Then, join the transformed migration data to the lngLat values in the metadata
+
+		migration_origin_by_country = migration_origin_by_country.map(d => {
+			
+			//look for 3-digit code
+			const code = countryCode.get(d.key);
+			const metadata = metadataMap.get(code);
+			if(metadata){
+				d.lngLat = metadata.lngLat;
+				d.subregion = metadata.subregion;
+				d.name_display = metadata.name_display;
+				d.iso_a3 = metadata.iso_a3
+			}else{
+				console.log(`Metadata for ${d.key} code ${code} not found`);
+			}
+			return d;
+		})
 
 
 		//REPRESENT
@@ -49,7 +69,8 @@ function drawCartogram(rootDom, data){
 
 	//projection function: takes [lng, lat] pair and returns [x, y] coordinates
 	const projection = d3.geoMercator()
-		.translate([w/2, h/2]);
+		.translate([w/2, h/2])
+		.scale(180);
 
 	//Scaling function for the size of the cartogram symbols
 	//Assuming the symbols are circles, we use a square root scale
@@ -57,6 +78,39 @@ function drawCartogram(rootDom, data){
 
 	//Complete the rest of the code here
 	//Build the DOM structure using enter / exit / update
+	const plot = d3.select(rootDom)
+		.append('svg')
+		.attr('width', w)
+		.attr('height', h)
+		.append('g');
+
+	const nodes = plot.selectAll('.node')
+		.data(data, d => d.key);
+	const nodesEnter = nodes.enter().append('g')
+		.attr('class', 'node');
+	nodesEnter.append('circle');
+	nodesEnter.append('text').attr('text-anchor', 'middle');
+
+	nodes.merge(nodesEnter)
+		.filter(d => d.lngLat)
+		.attr('transform', d => {
+			const xy = projection(d.lngLat);
+			return `translate(${xy[0]}, ${xy[1]})`;
+		})
+	nodes.merge(nodesEnter)
+		.select('circle')
+		.attr('r', d => scaleSize(d.value))
+		.style('fill-opacity', .03)
+		.style('stroke', '#000')
+		.style('stroke-width', '1px')
+		.style('stroke-opacity', .2)
+	nodes.merge(nodesEnter)
+		.select('text')
+		.attr('y', d => -scaleSize(d.value))
+		.filter(d => d.value > 1000000)
+		.text(d => d.name_display)
+		.style('font-family', 'sans-serif')
+		.style('font-size', '10px')
 
 }
 
